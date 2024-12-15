@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dự đoán Ảnh</title>
+    <style>
+      /* Đặt cấu hình chung cho toàn bộ trang */
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #2c3e50;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSur38kaOUhtQaPkc38NZiskLV-gRldVZ_fFTI2jIrOEuLKnqvspeI7f0m8apFS4zQI_YgZUy7C9tx9gIXVYgTe8w");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+
+      /* Hiệu ứng overlay mờ để làm nổi bật nội dung */
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8); /* Nền mờ */
+        z-index: -1;
+      }
+
+      h1 {
+        margin-bottom: 30px;
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #34495e;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+      }
+
+      form {
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        z-index: 1;
+      }
+
+      label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 15px;
+        font-size: 1.2em;
+        color: #7f8c8d;
+      }
+
+      input[type="file"] {
+        padding: 10px;
+        margin-bottom: 20px;
+        width: 100%;
+        display: block;
+        border: 2px solid #bdc3c7;
+        border-radius: 8px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: border-color 0.3s;
+      }
+
+      input[type="file"]:hover {
+        border-color: #3498db;
+      }
+
+      button {
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        padding: 12px 25px;
+        font-size: 1.1em;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #2980b9;
+      }
+
+      .preview {
+        margin-top: 20px;
+      }
+
+      .preview img {
+        max-width: 100%;
+        height: auto;
+        border: 2px solid #bdc3c7;
+        border-radius: 8px;
+        margin-top: 20px;
+      }
+
+      .result {
+        margin-top: 30px;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+      }
+
+      .result h2 {
+        font-size: 1.8em;
+        color: #34495e;
+        margin-bottom: 20px;
+      }
+
+      .result p {
+        font-size: 1.2em;
+        color: #7f8c8d;
+        margin-bottom: 20px;
+      }
+
+      footer {
+        margin-top: 50px;
+        font-size: 0.9em;
+        color: #95a5a6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="overlay"></div>
+    <h1>Dự đoán Ảnh</h1>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <label for="image">Chọn ảnh:</label>
+      <input type="file" name="image" id="image" accept="image/*" required onchange="previewImage(event)" />
+      <div class="preview" id="preview">
+        <!-- Xem trước ảnh -->
+      </div>
+      <button type="submit" onclick="removePreview()">Dự đoán</button>
+    </form>
+
+    {% if predicted_class %}
+    <div class="result">
+      <h2>Kết quả Dự Đoán</h2>
+      <p><strong>Loại:</strong> {{ predicted_class }}</p>
+      <p><strong>Độ tin cậy:</strong> {{ confidence }}%</p>
+      <h3>Ảnh đã tải lên:</h3>
+    </div>
+    {% endif %}
+
+    <footer>&copy; 2024 - Ứng dụng Dự đoán Ảnh. Tất cả các quyền được bảo lưu.</footer>
+
+    <script>
+      // Hàm hiển thị ảnh xem trước
+      function previewImage(event) {
+        const previewDiv = document.getElementById("preview");
+        const file = event.target.files[0];
+
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            previewDiv.innerHTML = `<img src="${e.target.result}" alt="Xem trước ảnh" />`;
+          };
+          reader.readAsDataURL(file);
+        } else {
+          previewDiv.innerHTML = ""; // Xóa xem trước nếu không có ảnh
+        }
+      }
+
+      // Hàm xóa ảnh xem trước
+      function removePreview() {
+        document.getElementById("preview").innerHTML = "";
+      }
+    </script>
+  </body>
+</html>
